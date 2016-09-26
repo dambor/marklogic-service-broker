@@ -1,0 +1,37 @@
+{
+  "services":[
+    {
+      "id":"7381b5a5-d4e6-43b1-beac-0304b46c009d",
+      "name":"marklogic-service-broker",
+      "description":"A simple MarkLogic service broker implementation",
+      "bindable": true,
+      "tags":[
+        "MarkLogic"
+      ],
+      "metadata":{
+        "displayName":"MarkLogicDB",
+        "imageUrl":"http://www.marklogic.com/wp-content/themes/marklogic-v2/img/marklogic.png",
+        "longDescription":"A simple MarkLogic service broker implementation",
+        "providerDisplayName":"MarkLogic"
+      },
+      "plans":[
+        {
+          "id":"b3cc740d-0174-4afb-9d5d-6ee1b1eb94a0",
+          "name":"demo-plan",
+          "description":"This is a demo plan.",
+          "metadata": {
+            "cost": 0,
+            "bullets": [{
+              "content": "Shared MarkLogic"
+            }, {
+              "content": "100 MB Storage (not enforced)"
+            }, {
+              "content": "40 concurrent connections (not enforced)"
+            }]
+          },
+          "free": true
+        }
+      ]
+    }
+  ]
+}
