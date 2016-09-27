@@ -1,5 +1,9 @@
 package io.pivotal.cf.servicebroker;
 
+import feign.Feign;
+import feign.auth.BasicAuthRequestInterceptor;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
 import io.pivotal.cf.servicebroker.broker.MarkLogicManageAPI;
 import io.pivotal.cf.servicebroker.model.ServiceBinding;
 import io.pivotal.cf.servicebroker.model.ServiceInstance;
@@ -11,6 +15,7 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceReques
 import org.springframework.cloud.servicebroker.model.ServiceDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 
 import java.net.URI;
@@ -33,12 +38,20 @@ public class TestConfig {
     @Autowired
     private CatalogService catalogService;
 
-    @Mock
-    private MarkLogicManageAPI markLogicManageAPI;
+    @Autowired
+    private Environment env;
+
+//    @Mock
+//    private MarkLogicManageAPI markLogicManageAPI;
 
     @Bean
     public MarkLogicManageAPI markLogicManageAPI() {
-        return markLogicManageAPI;
+        return Feign
+                .builder()
+                .encoder(new GsonEncoder()).decoder(new GsonDecoder())
+                .requestInterceptor(new BasicAuthRequestInterceptor(env.getProperty("ML_USER"), env.getProperty("ML_PW")))
+                .target(MarkLogicManageAPI.class,
+                        "http://" + env.getProperty("ML_HOST") + ":" + env.getProperty("ML_PORT"));
     }
 
     public static String getContents(String fileName) throws Exception {

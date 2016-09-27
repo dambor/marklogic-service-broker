@@ -41,7 +41,7 @@ public class Config {
     //TODO move to brokeredservice?
     @Bean
     public BrokerApiVersion brokerApiVersion() {
-        return new BrokerApiVersion("2.10");
+        return new BrokerApiVersion("2.9");
     }
 
     @Bean

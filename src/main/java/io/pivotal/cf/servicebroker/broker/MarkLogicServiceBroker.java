@@ -45,8 +45,12 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         log.info("creating instance with id: " + instance.getId());
 
         // create content DB
-        Map<String, String> m = new HashMap<>();
+        Map<String, Object> m = new HashMap<>();
         m.put("database-name", instance.getId() + "-content");
+
+        // Storing the contentDB Name
+        instance.getParameters().put("contentDB", instance.getId() + "-content");
+
 
         log.info("creating content database");
         markLogicManageAPI.createDatabase(m);
@@ -136,7 +140,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         //TODO create the binding via API... Create Roles, Users with those roles and passwords.
 
         //create role in Security DB
-        Map<String, String> m = new HashMap<>();
+        Map<String, Object> m = new HashMap<>();
         m.put("role-name", instance.getId() + "-admin-role");
         markLogicManageAPI.createRole(m);
 
@@ -193,7 +197,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 //        m.put("port", port);
 //        m.put("database", clusterName);
 //
-//        String uri = "http://" + m.get("username") + ":" + m.get("password") + "@" + m.get("host") + ":" + m.get("port") + "/" + m.get("database");
+//        String uri = "marklogic://" + m.get("username") + ":" + m.get("password") + "@" + m.get("host") + ":" + m.get("port") + "/" + m.get("database");
 //
 //        m.put("uri", uri);
 
