@@ -42,40 +42,63 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
      */
     @Override
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
-        log.info("creating instance with id: " + instance.getId());
 
-        // create content DB
+        // Map for storing values
         Map<String, Object> m = new HashMap<>();
-        m.put("database-name", instance.getId() + "-content");
 
-        // Storing the contentDB Name
-        instance.getParameters().put("contentDB", instance.getId() + "-content");
+        String databaseCreate;
+        String forestCreate;
+        String contentDBExt = "-content";
+        String modulesDBExt = "-modules";
+        String forestHostNumber = "001";
+        String forestNumber = "1";
 
+        // Create content DB
+        databaseCreate = instance.getId() + contentDBExt;
+        m.put("database-name", databaseCreate);
 
-        log.info("creating content database");
         markLogicManageAPI.createDatabase(m);
 
-        m.clear();
-        m.put("database-name", instance.getId() + "-modules");
+        // Store the contentDB Name
+        instance.getParameters().put("contentDB", databaseCreate);
 
-        log.info("creating modules database");
+        m.clear();
+
+        // Create modules DB
+        databaseCreate = instance.getId() + modulesDBExt;
+        m.put("database-name", databaseCreate);
+
         markLogicManageAPI.createDatabase(m);
 
-        m.clear();
-        m.put("forest-name", instance.getId() + "-content-001-1");
-        m.put("host", env.getProperty("ML_CLUSTER_NAME"));
-        m.put("database", instance.getId() + "-content");
-
-        log.info("creating content forrest");
-        markLogicManageAPI.createForest(m);
+        // Store the modules DB Name
+        instance.getParameters().put("modulesDB", databaseCreate);
 
         m.clear();
-        m.put("forest-name", instance.getId() + "-modules-001-1");
-        m.put("host", env.getProperty("ML_CLUSTER_NAME"));
-        m.put("database", instance.getId() + "-modules");
 
-        log.info("creating modules forrest");
+        // Create content Forest in MarkLogic, attach to content DB
+        forestCreate = instance.getId() + contentDBExt + "-" + forestHostNumber + "-" + forestNumber;
+        m.put("forest-name", forestCreate);
+        m.put("host", env.getProperty("ML_CLUSTER_NAME"));
+        m.put("database", instance.getId() + contentDBExt);
+
         markLogicManageAPI.createForest(m);
+
+        // Store the content DB Forest Name
+        instance.getParameters().put("contentForest", forestCreate);
+
+        m.clear();
+
+        // Create modules Forest in MarkLogic, attach to content DB
+        forestCreate = instance.getId() + modulesDBExt + "-" + forestHostNumber + "-" + forestNumber;
+        m.put("forest-name", forestCreate);
+        m.put("host", env.getProperty("ML_CLUSTER_NAME"));
+        m.put("database", instance.getId() + modulesDBExt);
+
+        markLogicManageAPI.createForest(m);
+
+        // Store the content DB Forest Name
+        instance.getParameters().put("modulesForest", forestCreate);
+
     }
 
     /**
