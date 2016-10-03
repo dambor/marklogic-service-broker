@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.cloud.servicebroker.model.*;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +38,7 @@ public class ServiceInstance implements Serializable {
 
     @JsonSerialize
     @JsonProperty("parameters")
+    @Column(length = 1000)
     @Convert(converter = MapConverter.class)
     private Map<String, Object> parameters = new HashMap<>();
 

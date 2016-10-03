@@ -17,7 +17,7 @@ public interface MarkLogicManageAPI {
 
     @Headers("Content-Type: application/json")
     @RequestLine("DELETE /manage/v2/databases/{databaseName}")
-    public void deleteDatabase(@Param("databaseName") String query);
+    public void deleteDatabase(@Param("databaseName") String databaseName);
 
     @Headers("Content-Type: application/json")
     @RequestLine("POST /manage/v2/forests")
@@ -25,7 +25,7 @@ public interface MarkLogicManageAPI {
 
     @Headers("Content-Type: application/json")
     @RequestLine("DELETE /manage/v2/forests/{forestName}?level=full")
-    public void deleteForest(@Param("forestName") String query);
+    public void deleteForest(@Param("forestName") String forestName);
 
     @Headers("Content-Type: application/json")
     @RequestLine("POST /manage/v2/roles")

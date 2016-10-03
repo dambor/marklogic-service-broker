@@ -42,6 +42,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
      */
     @Override
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
+        //ml create content, modules dbs and respective forests
 
         // Map for storing values
         Map<String, Object> m = new HashMap<>();
@@ -110,23 +111,23 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteInstance(ServiceInstance instance) throws ServiceBrokerException {
-        //TODO ml db clean up and destroy db and forests
+        //ml db clean up and destroy db and forests
 
         // delete content DB
-        String databaseDelete = "database-name" + instance.getId() + "-content";
+        String databaseDelete = instance.getId() + "-content";
         markLogicManageAPI.deleteDatabase(databaseDelete);
 
         // delete modules DB
-        databaseDelete = "database-name" + instance.getId() + "-modules";
+        databaseDelete = instance.getId() + "-modules";
         markLogicManageAPI.deleteDatabase(databaseDelete);
 
         // delete content Forest
-        String forestDelete = "forest-name" + instance.getId() + "-content-001-1";
+        String forestDelete = instance.getId() + "-content-001-1";
 
         markLogicManageAPI.deleteForest(forestDelete);
 
         //delete modules Forest
-        forestDelete = "forest-name" + instance.getId() + "-modules-001-1";
+        forestDelete = instance.getId() + "-modules-001-1";
 
         markLogicManageAPI.deleteForest(forestDelete);
     }
