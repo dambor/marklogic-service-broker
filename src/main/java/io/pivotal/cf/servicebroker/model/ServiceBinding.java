@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,11 +40,13 @@ public class ServiceBinding implements Serializable {
 
     @JsonSerialize
     @JsonProperty("parameters")
+    @Column(length = 1000)
     @Convert(converter = MapConverter.class)
     private Map<String, Object> parameters = new HashMap<>();
 
     @JsonSerialize
     @JsonProperty("credentials")
+    @Column(length = 500)
     @Convert(converter = MapConverter.class)
     private Map<String, Object> credentials = new HashMap<>();
 

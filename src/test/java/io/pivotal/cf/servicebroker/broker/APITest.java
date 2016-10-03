@@ -1,5 +1,6 @@
 package io.pivotal.cf.servicebroker.broker;
 
+import com.google.gson.Gson;
 import io.pivotal.cf.servicebroker.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,16 +26,37 @@ public class APITest {
     private Environment env;
 
     @Autowired
-    private MarkLogicManageAPI api;
+    private MarkLogicManageAPI markLogicManageAPI;
 
     @Test
-    public void testAPI() throws Exception {
+    public void testCreateDatabase() throws Exception {
 
         Map<String, Object> m = new HashMap<>();
         m.put("database-name", "testId" + "-content");
 
-        api.createDatabase(m);
+        markLogicManageAPI.createDatabase(m);
 
     }
+
+//    @Test
+//    public void testCreateUser() throws Exception {
+//
+//        Map<String, Object> m = new HashMap<>();
+//
+//        String pw = UUID.randomUUID().toString();
+//
+//        Gson gson = new Gson();
+//        String[] roleValues = { "cookingshow-admin-role" };
+//        gson.toJson("roleValues");
+//
+//        //create admin user
+//        m.put("user-name", "cookingshowpcf" + "-admin");
+//        m.put("password", pw);
+//        m.put("description", "cookingshowpcf" + " admin user");
+//        m.put("role", roleValues );
+//
+//        markLogicManageAPI.createUser(m);
+//
+//    }
 
 }
