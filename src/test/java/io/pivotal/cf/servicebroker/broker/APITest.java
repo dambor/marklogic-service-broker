@@ -39,6 +39,23 @@ public class APITest {
     }
 
 //    @Test
+//    public void testCreateRole() throws Exception {
+//
+//        Map<String, Object> secRole = new HashMap<>();
+//
+//        Gson secRoleRolesGson = new Gson();
+//        String[] secRoleRoles = { "rest-admin", "admin" };
+//        secRoleRolesGson.toJson("secRoleRoles");
+//
+//        secRole.put("role-name", "instanceId" + "-admin-role");
+//        secRole.put("description", "instanceId" + " admin role");
+//        secRole.put("role", secRoleRoles );
+//
+//        markLogicManageAPI.createRole(secRole);
+//
+//    }
+
+//    @Test
 //    public void testCreateUser() throws Exception {
 //
 //        Map<String, Object> m = new HashMap<>();

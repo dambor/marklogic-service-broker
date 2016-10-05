@@ -45,9 +45,6 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
         //ml create content, modules dbs and respective forests
 
-        //Map for storing values
-        Map<String, Object> m = new HashMap<>();
-
         String databaseCreate;
         String forestCreate;
         String contentDBExt = "-content";
@@ -56,47 +53,45 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         String forestNumber = "1";
 
         //Create content DB
+        Map<String, Object> contentDb = new HashMap<>();
         databaseCreate = instance.getId() + contentDBExt;
-        m.put("database-name", databaseCreate);
+        contentDb.put("database-name", databaseCreate);
 
-        markLogicManageAPI.createDatabase(m);
+        markLogicManageAPI.createDatabase(contentDb);
 
         //Store the contentDB Name
         instance.getParameters().put("contentDB", databaseCreate);
 
-        m.clear();
-
         //Create modules DB
+        Map<String, Object> modulesDb = new HashMap<>();
         databaseCreate = instance.getId() + modulesDBExt;
-        m.put("database-name", databaseCreate);
+        modulesDb.put("database-name", databaseCreate);
 
-        markLogicManageAPI.createDatabase(m);
+        markLogicManageAPI.createDatabase(modulesDb);
 
         //Store the modules DB Name
         instance.getParameters().put("modulesDB", databaseCreate);
 
-        m.clear();
-
         //Create content Forest in MarkLogic, attach to content DB
+        Map<String, Object> contentDbForest = new HashMap<>();
         forestCreate = instance.getId() + contentDBExt + "-" + forestHostNumber + "-" + forestNumber;
-        m.put("forest-name", forestCreate);
-        m.put("host", env.getProperty("ML_CLUSTER_NAME"));
-        m.put("database", instance.getId() + contentDBExt);
+        contentDbForest.put("forest-name", forestCreate);
+        contentDbForest.put("host", env.getProperty("ML_CLUSTER_NAME"));
+        contentDbForest.put("database", instance.getId() + contentDBExt);
 
-        markLogicManageAPI.createForest(m);
+        markLogicManageAPI.createForest(contentDbForest);
 
         //Store the content DB Forest Name
         instance.getParameters().put("contentForest", forestCreate);
 
-        m.clear();
-
         //Create modules Forest in MarkLogic, attach to content DB
+        Map<String, Object> modulesDbForest = new HashMap<>();
         forestCreate = instance.getId() + modulesDBExt + "-" + forestHostNumber + "-" + forestNumber;
-        m.put("forest-name", forestCreate);
-        m.put("host", env.getProperty("ML_CLUSTER_NAME"));
-        m.put("database", instance.getId() + modulesDBExt);
+        modulesDbForest.put("forest-name", forestCreate);
+        modulesDbForest.put("host", env.getProperty("ML_CLUSTER_NAME"));
+        modulesDbForest.put("database", instance.getId() + modulesDBExt);
 
-        markLogicManageAPI.createForest(m);
+        markLogicManageAPI.createForest(modulesDbForest);
 
         //Store the content DB Forest Name
         instance.getParameters().put("modulesForest", forestCreate);
@@ -115,20 +110,20 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         //ml db clean up and destroy db and forests
 
         //delete content DB
-        String databaseDelete = instance.getId() + "-content";
-        markLogicManageAPI.deleteDatabase(databaseDelete);
+        String contentDatabaseDelete = instance.getId() + "-content";
+        markLogicManageAPI.deleteDatabase(contentDatabaseDelete);
 
         //delete modules DB
-        databaseDelete = instance.getId() + "-modules";
-        markLogicManageAPI.deleteDatabase(databaseDelete);
+        String modulesDatabaseDelete = instance.getId() + "-modules";
+        markLogicManageAPI.deleteDatabase(modulesDatabaseDelete);
 
         //delete content Forest
-        String forestDelete = instance.getId() + "-content-001-1";
-        markLogicManageAPI.deleteForest(forestDelete);
+        String contentForestDelete = instance.getId() + "-content-001-1";
+        markLogicManageAPI.deleteForest(contentForestDelete);
 
         //delete modules Forest
-        forestDelete = instance.getId() + "-modules-001-1";
-        markLogicManageAPI.deleteForest(forestDelete);
+        String modulesForestDelete = instance.getId() + "-modules-001-1";
+        markLogicManageAPI.deleteForest(modulesForestDelete);
 
     }
 
@@ -161,59 +156,59 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
      */
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
-        //TODO create the binding via API... Create App Servers, Roles, Users with those roles and passwords.
-
-        Map<String, Object> m = new HashMap<>();
+        //ml create app server, role, and user
 
         //create app server
         //TODO figure out a way to manage the app server ports
-        m.put("server-name", instance.getId() + "-app");
-        m.put("server-type","http");
-        m.put("group-name","Default");
-        m.put("root","/");
-        m.put("port","6000");
-        m.put("content-database", instance.getId() + "-content");
-        m.put("modules-database", instance.getId() + "-modules");
-        m.put("log-errors", "true");
-        m.put("default-error-format", "compatible");
-        m.put("error-handler", "/error-handler.xqy");
-        m.put("url-rewriter", "/rewriter.xml");
-        m.put("rewrite-resolves-globally", "false");
+        Map<String, Object> appServer = new HashMap<>();
+        appServer.put("server-name", instance.getId() + "-app");
+        appServer.put("server-type","http");
+        appServer.put("group-name","Default");
+        appServer.put("root","/");
+        appServer.put("port","6000");
+        appServer.put("content-database", instance.getId() + "-content");
+        appServer.put("modules-database", instance.getId() + "-modules");
+        appServer.put("log-errors", "true");
+        appServer.put("default-error-format", "compatible");
+        appServer.put("error-handler", "/error-handler.xqy");
+        appServer.put("url-rewriter", "/rewriter.xml");
+        appServer.put("rewrite-resolves-globally", "false");
 
-        markLogicManageAPI.createAppServer(m);
+        markLogicManageAPI.createAppServer(appServer);
 
-        //Save App Server Parameters
-        //binding.getParameters().putAll(m);
-
-        m.clear();
+        binding.getParameters().putAll(appServer);
 
         //create admin role
-        //TODO add description and add this role to: rest-admin, admin
-        m.put("role-name", instance.getId() + "-admin-role");
+        Map<String, Object> secRole = new HashMap<>();
 
-        markLogicManageAPI.createRole(m);
+        Gson secRoleRolesGson = new Gson();
+        String[] secRoleRoles = { "rest-admin", "admin" };
+        secRoleRolesGson.toJson("secRoleRoles");
 
-        binding.getParameters().putAll(m);
+        secRole.put("role-name", instance.getId() + "-admin-role");
+        secRole.put("description", instance.getId() + " admin role");
+        secRole.put("role", secRoleRoles );
 
-        m.clear();
+        markLogicManageAPI.createRole(secRole);
+
+        binding.getParameters().putAll(secRole);
 
         //create admin user
+        Map<String, Object> secUser = new HashMap<>();
         String pw = UUID.randomUUID().toString();
 
-        Gson gson = new Gson();
-        String[] roleValues = { instance.getId() + "-admin-role" };
-        gson.toJson("roleValues");
+        Gson userRolesGson = new Gson();
+        String[] userRoles = { instance.getId() + "-admin-role" };
+        userRolesGson.toJson("userRoles");
 
-        m.put("user-name", instance.getId() + "-admin");
-        m.put("password", pw);
-        m.put("description", instance.getId() + " admin user");
-        m.put("role", roleValues );
+        secUser.put("user-name", instance.getId() + "-admin");
+        secUser.put("password", pw);
+        secUser.put("description", instance.getId() + " admin user");
+        secUser.put("role", userRoles );
 
-        markLogicManageAPI.createUser(m);
+        markLogicManageAPI.createUser(secUser);
 
-        binding.getParameters().putAll(m);
-
-        m.clear();
+        binding.getParameters().putAll(secUser);
 
     }
 
@@ -226,7 +221,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
-        //TODO call API to delete stuff
+        //ml delete user, role, app server
 
         //delete Admin User
         String userDelete = instance.getId() + "-admin";
@@ -239,6 +234,8 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         //delete App Server
         String appServerDelete = instance.getId() + "-app";
         markLogicManageAPI.deleteAppServer(appServerDelete);
+
+        //TODO Restart MarkLogic
 
     }
 
@@ -263,9 +260,9 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         m.put("host", env.getProperty("ML_HOST"));
         m.put("port", binding.getParameters().get("port"));
-        //TODO need to pull back the username and password values- there will be 3 sets of them (admin, contrib, guest)
         m.put("username", binding.getParameters().get("user-name"));
         m.put("password", binding.getParameters().get("password"));
+        m.put("manageport", env.getProperty("ML_PORT"));
         //Use the instance credentials
         //m.put("username", env.getProperty("ML_USER"));
         //m.put("password", env.getProperty("ML_PW"));
