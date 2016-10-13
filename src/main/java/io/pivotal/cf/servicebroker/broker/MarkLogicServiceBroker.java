@@ -2,6 +2,7 @@ package io.pivotal.cf.servicebroker.broker;
 
 import com.google.gson.Gson;
 import io.pivotal.cf.servicebroker.model.ServiceBinding;
+import io.pivotal.cf.servicebroker.model.ServiceBindingRepository;
 import io.pivotal.cf.servicebroker.model.ServiceInstance;
 import io.pivotal.cf.servicebroker.service.DefaultServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,9 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
     @Autowired
     private Environment env;
+
+    @Autowired
+    private ServiceBindingRepository repo;
 
     /**
      * Add code here and it will be run during the create-service process. This might include
@@ -158,14 +162,85 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
     public void createBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
         //ml create app server, role, and user
 
+        //create admin role
+        Map<String, Object> adminSecRole = new HashMap<>();
+
+        Gson adminSecRoleRolesGson = new Gson();
+        String[] adminSecRoleRoles = { "rest-admin", "admin" };
+        adminSecRoleRolesGson.toJson("adminSecRoleRoles");
+
+        adminSecRole.put("role-name", instance.getId() + "-admin-role");
+        adminSecRole.put("description", instance.getId() + " admin role");
+        adminSecRole.put("role", adminSecRoleRoles );
+
+        markLogicManageAPI.createRole(adminSecRole);
+
+        binding.getParameters().putAll(adminSecRole);
+
+        //create admin user
+        Map<String, Object> adminSecUser = new HashMap<>();
+        String adminPw = UUID.randomUUID().toString();
+
+        Gson adminUserRolesGson = new Gson();
+        String[] adminUserRoles = { instance.getId() + "-admin-role" };
+        adminUserRolesGson.toJson("adminUserRoles");
+
+        adminSecUser.put("user-name", instance.getId() + "-admin");
+        adminSecUser.put("password", adminPw);
+        adminSecRole.put("description", instance.getId() + " admin user");
+        adminSecUser.put("role", adminUserRoles );
+
+        markLogicManageAPI.createUser(adminSecUser);
+
+        binding.getParameters().putAll(adminSecUser);
+
+        //TODO Create guest role and user
+        //create guest role
+        Map<String, Object> guestSecRole = new HashMap<>();
+
+        Gson guestSecRoleRolesGson = new Gson();
+        //TODO update roles
+        String[] guestSecRoleRoles = { "rest-reader" };
+        guestSecRoleRolesGson.toJson("guestSecRoleRoles");
+
+        guestSecRole.put("role-name", instance.getId() + "-guest-role");
+        guestSecRole.put("description", instance.getId() + " guest role");
+        guestSecRole.put("role", guestSecRoleRoles );
+
+        markLogicManageAPI.createRole(guestSecRole);
+
+        binding.getParameters().putAll(guestSecRole);
+
+        //create guest user
+        Map<String, Object> guestSecUser = new HashMap<>();
+        String guestPw = UUID.randomUUID().toString();
+
+        Gson guestUserRolesGson = new Gson();
+        String[] guestUserRoles = { instance.getId() + "-guest-role" };
+        guestUserRolesGson.toJson("guestUserRoles");
+
+        guestSecUser.put("user-name", instance.getId() + "-guest");
+        guestSecUser.put("password", guestPw);
+        guestSecRole.put("description", instance.getId() + " guest user");
+        guestSecUser.put("role", guestUserRoles );
+
+        markLogicManageAPI.createUser(guestSecUser);
+
+        binding.getParameters().putAll(guestSecUser);
+
         //create app server
-        //TODO figure out a way to manage the app server ports
+
+        //TODO figure out the current highest app server port taking into account the env variable (if not found) and increment by one
+
+        //TODO update to the /v1/rest-apis API
+
         Map<String, Object> appServer = new HashMap<>();
         appServer.put("server-name", instance.getId() + "-app");
         appServer.put("server-type","http");
         appServer.put("group-name","Default");
         appServer.put("root","/");
-        appServer.put("port","6000");
+        appServer.put("port", env.getProperty("ML_APPSERVER_START_PORT"));
+        appServer.put("default-user", instance.getId() + "-guest");
         appServer.put("content-database", instance.getId() + "-content");
         appServer.put("modules-database", instance.getId() + "-modules");
         appServer.put("log-errors", "true");
@@ -178,37 +253,6 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         binding.getParameters().putAll(appServer);
 
-        //create admin role
-        Map<String, Object> secRole = new HashMap<>();
-
-        Gson secRoleRolesGson = new Gson();
-        String[] secRoleRoles = { "rest-admin", "admin" };
-        secRoleRolesGson.toJson("secRoleRoles");
-
-        secRole.put("role-name", instance.getId() + "-admin-role");
-        secRole.put("description", instance.getId() + " admin role");
-        secRole.put("role", secRoleRoles );
-
-        markLogicManageAPI.createRole(secRole);
-
-        binding.getParameters().putAll(secRole);
-
-        //create admin user
-        Map<String, Object> secUser = new HashMap<>();
-        String pw = UUID.randomUUID().toString();
-
-        Gson userRolesGson = new Gson();
-        String[] userRoles = { instance.getId() + "-admin-role" };
-        userRolesGson.toJson("userRoles");
-
-        secUser.put("user-name", instance.getId() + "-admin");
-        secUser.put("password", pw);
-        secUser.put("description", instance.getId() + " admin user");
-        secUser.put("role", userRoles );
-
-        markLogicManageAPI.createUser(secUser);
-
-        binding.getParameters().putAll(secUser);
 
     }
 
@@ -223,17 +267,25 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
         //ml delete user, role, app server
 
-        //delete Admin User
-        String userDelete = instance.getId() + "-admin";
-        markLogicManageAPI.deleteUser(userDelete);
-
-        //delete Admin Role
-        String roleDelete = instance.getId() + "-admin-role";
-        markLogicManageAPI.deleteRole(roleDelete);
-
         //delete App Server
         String appServerDelete = instance.getId() + "-app";
         markLogicManageAPI.deleteAppServer(appServerDelete);
+
+        //delete Admin User
+        String adminUserDelete = instance.getId() + "-admin";
+        markLogicManageAPI.deleteUser(adminUserDelete);
+
+        //delete Admin Role
+        String adminRoleDelete = instance.getId() + "-admin-role";
+        markLogicManageAPI.deleteRole(adminRoleDelete);
+
+        //delete Guest User
+        String guestUserDelete = instance.getId() + "-guest";
+        markLogicManageAPI.deleteUser(guestUserDelete);
+
+        //delete Guest Role
+        String guestRoleDelete = instance.getId() + "-guest-role";
+        markLogicManageAPI.deleteRole(guestRoleDelete);
 
         //TODO Restart MarkLogic
 
