@@ -36,6 +36,14 @@ public interface MarkLogicManageAPI {
     public void deleteAppServer(@Param("appServerName") String appServerName);
 
     @Headers("Content-Type: application/json")
+    @RequestLine("POST /v1/rest-apis")
+    public String createRestServer(@RequestBody Map<String, Object> m);
+
+    @Headers("Content-Type: application/json")
+    @RequestLine("DELETE /v1/rest-apis/{appServerName}")
+    public void deleteRestServer(@Param("appServerName") String appServerName);
+
+    @Headers("Content-Type: application/json")
     @RequestLine("POST /manage/v2/roles")
     public String createRole(@RequestBody Map<String, Object> m);
 
