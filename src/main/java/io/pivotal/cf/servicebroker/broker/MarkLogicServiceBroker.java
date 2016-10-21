@@ -9,8 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -36,6 +41,13 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
     @Autowired
     private ServiceBindingRepository repo;
+
+    public interface AppServerRepository extends JpaRepository<ServiceBinding, Long> {
+
+        @Query("select coalesce(max(s.app_server_port), s.appServerPortIn) from service_binding s")
+        ServiceBinding findGreatestAppServerPort(int appServerPortIn);
+
+    }
 
     /**
      * Add code here and it will be run during the create-service process. This might include
@@ -268,6 +280,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         //create app server
 
         //TODO figure out the current highest app server port taking into account the env variable (if not found) and increment by one
+        //String greatestAppServerPort =
 
         //TODO updating to call the rest-api api
         Map<String, Object> restServer = new HashMap<>();
@@ -345,7 +358,6 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
      */
     @Override
     public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
-        //TODO Put together the VCAP_Services-type variables that are needed. Maybe use the java connection library later.
 
         Map<String, Object> m = new HashMap<>();
 
@@ -362,16 +374,6 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         String uri = "marklogic://" + m.get("username") + ":" + m.get("password") + "@" + m.get("host") + ":" + m.get("port") + "/" + m.get("database");
 
         m.put("uri", uri);
-
-        //maybe something like this? Are the host/port etcs same as we get from the application.props file?
-        //or do they come from the backend service somehow?
-//        m.put("host", host);
-//        m.put("port", port);
-//        m.put("database", clusterName);
-//
-//        String uri = "marklogic://" + m.get("username") + ":" + m.get("password") + "@" + m.get("host") + ":" + m.get("port") + "/" + m.get("database");
-//
-//        m.put("uri", uri);
 
         return m;
     }

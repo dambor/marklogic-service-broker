@@ -50,6 +50,11 @@ public class ServiceBinding implements Serializable {
     @Convert(converter = MapConverter.class)
     private Map<String, Object> credentials = new HashMap<>();
 
+    // added to manage MarkLogic app server ports
+    @JsonSerialize
+    @JsonProperty("app_server_port")
+    private int appServerPort;
+
     public ServiceBinding() {
         super();
     }
@@ -65,6 +70,8 @@ public class ServiceBinding implements Serializable {
         if (request.getParameters() != null) {
             getParameters().putAll(request.getParameters());
         }
+        //added to save the app port value
+        this.appServerPort = Integer.valueOf((String) request.getParameters().get("port"));
     }
 
     public String getId() {
