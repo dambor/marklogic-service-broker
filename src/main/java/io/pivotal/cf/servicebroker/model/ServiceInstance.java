@@ -46,6 +46,11 @@ public class ServiceInstance implements Serializable {
     @JsonProperty("accepts_incomplete")
     private boolean acceptsIncomplete;
 
+    // added to manage MarkLogic app server ports
+    @JsonSerialize
+    @JsonProperty("app_server_port")
+    public int appServerPort;
+
     public ServiceInstance() {
         super();
     }

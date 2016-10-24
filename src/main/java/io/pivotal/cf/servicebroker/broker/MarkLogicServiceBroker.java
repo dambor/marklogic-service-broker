@@ -4,21 +4,15 @@ import com.google.gson.Gson;
 import io.pivotal.cf.servicebroker.model.ServiceBinding;
 import io.pivotal.cf.servicebroker.model.ServiceBindingRepository;
 import io.pivotal.cf.servicebroker.model.ServiceInstance;
+import io.pivotal.cf.servicebroker.model.ServiceInstanceRepository;
 import io.pivotal.cf.servicebroker.service.DefaultServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.core.env.Environment;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Example service broker. Can be used as a template for creating custom service brokers
@@ -42,12 +36,8 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
     @Autowired
     private ServiceBindingRepository repo;
 
-    public interface AppServerRepository extends JpaRepository<ServiceBinding, Long> {
-
-        @Query("select coalesce(max(s.app_server_port), s.appServerPortIn) from service_binding s")
-        ServiceBinding findGreatestAppServerPort(int appServerPortIn);
-
-    }
+    @Autowired
+    private ServiceInstanceRepository instanceRepo;
 
     /**
      * Add code here and it will be run during the create-service process. This might include
@@ -277,18 +267,50 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         binding.getParameters().putAll(adminSecUser);
 
 
+        //determine the next available app server port to use for this app server
+        Integer availableAppServerPort;
+
+        ArrayList<Integer> currentUsedAppServerPorts = instanceRepo.findExistingAppServerPortsDesc();
+
+        //if there are no recorded app server ports, use the start port specified in manifest.yml - 9000
+        if (currentUsedAppServerPorts.isEmpty())
+            availableAppServerPort = Integer.parseInt(env.getProperty("ML_APPSERVER_START_PORT"));
+        else {
+
+            //parse any open ports in the currentUsedAppServerPorts array
+            Integer[] currentUsedAppServerPortsArray = currentUsedAppServerPorts.toArray(new Integer[0]);
+            Arrays.sort(currentUsedAppServerPortsArray);
+
+            ArrayList<Integer> openPorts = new ArrayList<>();
+
+            int j = currentUsedAppServerPortsArray[0];
+            for (int i=0;i<currentUsedAppServerPortsArray.length;i++)
+            {
+                if (j==currentUsedAppServerPortsArray[i])
+                {
+                    j++;
+                }
+                else
+                {
+                    openPorts.add(j);
+                    i--;
+                    j++;
+                }
+            }
+
+            //if no open ports in the array, get the highest port and increase by one otherwise use the first available open port
+            if (openPorts.isEmpty()) availableAppServerPort = instanceRepo.findGreatestAppServerPort() + 1;
+            else availableAppServerPort = openPorts.get(0);
+
+        }
+
         //create app server
-
-        //TODO figure out the current highest app server port taking into account the env variable (if not found) and increment by one
-        //String greatestAppServerPort =
-
-        //TODO updating to call the rest-api api
         Map<String, Object> restServer = new HashMap<>();
         restServer.put("name", instance.getId() + "-app");
         restServer.put("group","Default");
         restServer.put("database", instance.getId() + "-content");
         restServer.put("modules-database", instance.getId() + "-modules");
-        restServer.put("port", env.getProperty("ML_APPSERVER_START_PORT"));
+        restServer.put("port", availableAppServerPort);
         restServer.put("xdbc-enabled","true");
         restServer.put("forests-per-host","3");
         restServer.put("error-format","json");
@@ -297,6 +319,9 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         restApi.put("rest-api",restServer);
 
         markLogicManageAPI.createRestServer(restApi);
+
+        //TODO update appServerPort in ServiceInstance model with setter, make appServerPort not public
+        instance.appServerPort = availableAppServerPort;
 
         binding.getParameters().putAll(restServer);
 

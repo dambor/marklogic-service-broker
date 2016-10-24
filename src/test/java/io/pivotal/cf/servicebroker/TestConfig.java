@@ -59,13 +59,13 @@ public class TestConfig {
         return new String(Files.readAllBytes(Paths.get(u)));
     }
 
-    private static CreateServiceInstanceRequest getCreateServiceInstanceRequest() {
+    public static CreateServiceInstanceRequest getCreateServiceInstanceRequest(String id) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(PARAM1_NAME, PARAM1_VAL);
 
         CreateServiceInstanceRequest req = new CreateServiceInstanceRequest(
                 SD_ID, "pId", "orgId", "spaceId", parameters);
-        req.withServiceInstanceId(SI_ID);
+        req.withServiceInstanceId(id);
         return req;
     }
 
@@ -81,8 +81,24 @@ public class TestConfig {
         return req;
     }
 
+    public static CreateServiceInstanceRequest getCreateServiceInstanceRequest(
+            ServiceDefinition sd, boolean includeParms, String instanceId) {
+
+        Map<String, Object> parms = new HashMap<>();
+
+        CreateServiceInstanceRequest req = new CreateServiceInstanceRequest(
+                sd.getId(), sd.getPlans().get(0).getId(), "testOrgId",
+                "testSpaceId", parms);
+        req.withServiceInstanceId(instanceId);
+        return req;
+    }
+
     public static ServiceInstance getServiceInstance() {
-        return new ServiceInstance(getCreateServiceInstanceRequest());
+        return new ServiceInstance(getCreateServiceInstanceRequest(SD_ID));
+    }
+
+    public static ServiceInstance getServiceInstance(CreateServiceInstanceRequest request) {
+        return new ServiceInstance(request);
     }
 
     private static CreateServiceInstanceBindingRequest getCreateBindingRequest() {
