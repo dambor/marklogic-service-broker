@@ -49,7 +49,7 @@ public class ServiceInstanceRepositoryTest {
 
         ServiceInstance si = TestConfig.getServiceInstance(serviceInstanceRequest);
 
-        si.appServerPort = 9001;
+        si.setPortNumber(9001);
         repo.save(si);
 
 
@@ -57,7 +57,7 @@ public class ServiceInstanceRepositoryTest {
 
         si = TestConfig.getServiceInstance(serviceInstanceRequest);
 
-        si.appServerPort = 9003;
+        si.setPortNumber(9003);
         repo.save(si);
 
 
@@ -65,7 +65,7 @@ public class ServiceInstanceRepositoryTest {
 
         si = TestConfig.getServiceInstance(serviceInstanceRequest);
 
-        si.appServerPort = 9000;
+        si.setPortNumber(9000);
         repo.save(si);
 
 
@@ -86,7 +86,7 @@ public class ServiceInstanceRepositoryTest {
 
         ServiceInstance si = TestConfig.getServiceInstance(serviceInstanceRequest);
 
-        si.appServerPort = 9001;
+        si.setPortNumber(9001);
         repo.save(si);
 
 
@@ -94,7 +94,7 @@ public class ServiceInstanceRepositoryTest {
 
         si = TestConfig.getServiceInstance(serviceInstanceRequest);
 
-        si.appServerPort = 9004;
+        si.setPortNumber(9004);
         repo.save(si);
 
 
@@ -102,7 +102,7 @@ public class ServiceInstanceRepositoryTest {
 
         si = TestConfig.getServiceInstance(serviceInstanceRequest);
 
-        si.appServerPort = 9002;
+        si.setPortNumber(9002);
         repo.save(si);
 
 

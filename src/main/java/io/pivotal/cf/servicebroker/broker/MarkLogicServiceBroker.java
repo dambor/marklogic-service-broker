@@ -321,7 +321,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         markLogicManageAPI.createRestServer(restApi);
 
         //TODO update appServerPort in ServiceInstance model with setter, make appServerPort not public
-        instance.appServerPort = availableAppServerPort;
+        instance.setPortNumber(availableAppServerPort);
 
         binding.getParameters().putAll(restServer);
 

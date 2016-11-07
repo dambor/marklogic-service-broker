@@ -49,7 +49,7 @@ public class ServiceInstance implements Serializable {
     // added to manage MarkLogic app server ports
     @JsonSerialize
     @JsonProperty("app_server_port")
-    public int appServerPort;
+    private Integer appServerPort;
 
     public ServiceInstance() {
         super();
@@ -71,6 +71,14 @@ public class ServiceInstance implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public Integer getPortNumber() {
+        return appServerPort;
+    }
+
+    public void setPortNumber(Integer i) {
+        appServerPort = i;
     }
 
     public Map<String, Object> getParameters() {
