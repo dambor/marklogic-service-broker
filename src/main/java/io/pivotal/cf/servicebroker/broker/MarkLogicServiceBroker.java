@@ -80,6 +80,8 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         //Store the modules DB Name
         instance.getParameters().put("modulesDB", databaseCreate);
 
+        //TODO Track Forests similar to how it is done for the app server ports with forestHostNumber and forestNumber
+
         //Create content Forest in MarkLogic, attach to content DB
         Map<String, Object> contentDbForest = new HashMap<>();
         forestCreate = instance.getId() + contentDBExt + "-" + forestHostNumber + "-" + forestNumber;
@@ -104,66 +106,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         //Store the content DB Forest Name
         instance.getParameters().put("modulesForest", forestCreate);
 
-    }
-
-    /**
-     * Code here will be called during the delete-service instance process. You can use this to de-allocate resources
-     * on your underlying service, delete user accounts, destroy environments, etc.
-     *
-     * @param instance service instance data passed in by the cloud connector.
-     * @throws ServiceBrokerException thrown this for any errors during instance deletion.
-     */
-    @Override
-    public void deleteInstance(ServiceInstance instance) throws ServiceBrokerException {
-        //ml db clean up and destroy db and forests
-
-        //delete content DB
-        String contentDatabaseDelete = instance.getId() + "-content";
-        markLogicManageAPI.deleteDatabase(contentDatabaseDelete);
-
-        //delete modules DB
-        String modulesDatabaseDelete = instance.getId() + "-modules";
-        markLogicManageAPI.deleteDatabase(modulesDatabaseDelete);
-
-        //delete content Forest
-        String contentForestDelete = instance.getId() + "-content-001-1";
-        markLogicManageAPI.deleteForest(contentForestDelete);
-
-        //delete modules Forest
-        String modulesForestDelete = instance.getId() + "-modules-001-1";
-        markLogicManageAPI.deleteForest(modulesForestDelete);
-
-    }
-
-    /**
-     * Code here will be called during the update-service process. You can use this to modify
-     * your service instance.
-     *
-     * @param instance service instance data passed in by the cloud connector.
-     * @throws ServiceBrokerException thrown this for any errors during instance deletion. Services that do not support
-     *                                updating can through ServiceInstanceUpdateNotSupportedException here.
-     */
-    @Override
-    public void updateInstance(ServiceInstance instance) throws ServiceBrokerException {
-        //TODO add more forests, nodes, indexes.....
-    }
-
-    /**
-     * Called during the bind-service process. This is a good time to set up anything on your underlying service specifically
-     * needed by an application, such as user accounts, rights and permissions, application-specific environments and connections, etc.
-     * <p>
-     * Services that do not support binding should set '"bindable": false,' within their catalog.json file. In this case this method
-     * can be safely deleted in your implementation.
-     *
-     * @param instance service instance data passed in by the cloud connector.
-     * @param binding  binding data passed in by the cloud connector. Clients can pass additional json
-     *                 as part of the bind-service request, which will show up as key value pairs in binding.parameters. Brokers
-     *                 can, as part of this method, store any information needed for credentials and unbinding operations as key/value
-     *                 pairs in binding.properties
-     * @throws ServiceBrokerException thrown this for any errors during binding creation.
-     */
-    @Override
-    public void createBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
+        //Following lines moved from Create Binding
         //ml create app server, role, and user
 
         //TODO decide if Gson is really required for roles...
@@ -181,7 +124,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         markLogicManageAPI.createRole(guestSecRole);
 
-        binding.getParameters().putAll(guestSecRole);
+        instance.getParameters().putAll(guestSecRole);
 
         //create guest user
         Map<String, Object> guestSecUser = new HashMap<>();
@@ -198,7 +141,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         markLogicManageAPI.createUser(guestSecUser);
 
-        binding.getParameters().putAll(guestSecUser);
+        instance.getParameters().putAll(guestSecUser);
 
 
         //create contributor role
@@ -214,7 +157,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         markLogicManageAPI.createRole(contributorSecRole);
 
-        binding.getParameters().putAll(contributorSecRole);
+        instance.getParameters().putAll(contributorSecRole);
 
         //create contributor user
         Map<String, Object> contributorSecUser = new HashMap<>();
@@ -231,7 +174,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         markLogicManageAPI.createUser(contributorSecUser);
 
-        binding.getParameters().putAll(contributorSecUser);
+        instance.getParameters().putAll(contributorSecUser);
 
 
         //create admin role
@@ -247,7 +190,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         markLogicManageAPI.createRole(adminSecRole);
 
-        binding.getParameters().putAll(adminSecRole);
+        instance.getParameters().putAll(adminSecRole);
 
         //create admin user
         Map<String, Object> adminSecUser = new HashMap<>();
@@ -264,7 +207,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         markLogicManageAPI.createUser(adminSecUser);
 
-        binding.getParameters().putAll(adminSecUser);
+        instance.getParameters().putAll(adminSecUser);
 
 
         //determine the next available app server port to use for this app server
@@ -322,19 +265,20 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
 
         instance.setPortNumber(availableAppServerPort);
 
-        binding.getParameters().putAll(restServer);
+        instance.getParameters().putAll(restServer);
 
     }
 
     /**
-     * Called during the unbind-service process. This is a good time to destroy any resources, users, connections set up during the bind process.
+     * Code here will be called during the delete-service instance process. You can use this to de-allocate resources
+     * on your underlying service, delete user accounts, destroy environments, etc.
      *
      * @param instance service instance data passed in by the cloud connector.
-     * @param binding  binding data passed in by the cloud connector.
-     * @throws ServiceBrokerException thrown this for any errors during the unbinding creation.
+     * @throws ServiceBrokerException thrown this for any errors during instance deletion.
      */
     @Override
-    public void deleteBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
+    public void deleteInstance(ServiceInstance instance) throws ServiceBrokerException {
+
         //ml delete user, role, app server
 
         //delete Admin User
@@ -365,6 +309,72 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         String restServerDelete = instance.getId() + "-app";
         markLogicManageAPI.deleteRestServer(restServerDelete);
 
+        //ml db clean up and destroy db and forests
+
+        //delete content DB
+        String contentDatabaseDelete = instance.getId() + "-content";
+        markLogicManageAPI.deleteDatabase(contentDatabaseDelete);
+
+        //delete modules DB
+        String modulesDatabaseDelete = instance.getId() + "-modules";
+        markLogicManageAPI.deleteDatabase(modulesDatabaseDelete);
+
+        //delete content Forest
+        String contentForestDelete = instance.getId() + "-content-001-1";
+        markLogicManageAPI.deleteForest(contentForestDelete);
+
+        //delete modules Forest
+        String modulesForestDelete = instance.getId() + "-modules-001-1";
+        markLogicManageAPI.deleteForest(modulesForestDelete);
+
+    }
+
+    /**
+     * Code here will be called during the update-service process. You can use this to modify
+     * your service instance.
+     *
+     * @param instance service instance data passed in by the cloud connector.
+     * @throws ServiceBrokerException thrown this for any errors during instance deletion. Services that do not support
+     *                                updating can through ServiceInstanceUpdateNotSupportedException here.
+     */
+    @Override
+    public void updateInstance(ServiceInstance instance) throws ServiceBrokerException {
+        //TODO add more forests, nodes, indexes.....
+    }
+
+    /**
+     * Called during the bind-service process. This is a good time to set up anything on your underlying service specifically
+     * needed by an application, such as user accounts, rights and permissions, application-specific environments and connections, etc.
+     * <p>
+     * Services that do not support binding should set '"bindable": false,' within their catalog.json file. In this case this method
+     * can be safely deleted in your implementation.
+     *
+     * @param instance service instance data passed in by the cloud connector.
+     * @param binding  binding data passed in by the cloud connector. Clients can pass additional json
+     *                 as part of the bind-service request, which will show up as key value pairs in binding.parameters. Brokers
+     *                 can, as part of this method, store any information needed for credentials and unbinding operations as key/value
+     *                 pairs in binding.properties
+     * @throws ServiceBrokerException thrown this for any errors during binding creation.
+     */
+    @Override
+    public void createBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
+
+        //TODO: individual credentials for the different apps or anything else on a per app basis.
+
+    }
+
+    /**
+     * Called during the unbind-service process. This is a good time to destroy any resources, users, connections set up during the bind process.
+     *
+     * @param instance service instance data passed in by the cloud connector.
+     * @param binding  binding data passed in by the cloud connector.
+     * @throws ServiceBrokerException thrown this for any errors during the unbinding creation.
+     */
+    @Override
+    public void deleteBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
+
+        //TODO: delete individual credentials for the different apps or anything else on a per app basis.
+
     }
 
     /**
@@ -386,14 +396,14 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         Map<String, Object> m = new HashMap<>();
 
         m.put("host", env.getProperty("ML_HOST"));
-        m.put("port", binding.getParameters().get("port"));
-        m.put("username", binding.getParameters().get("user-name"));
-        m.put("password", binding.getParameters().get("password"));
+        m.put("port", instance.getParameters().get("port"));
+        m.put("username", instance.getParameters().get("user-name"));
+        m.put("password", instance.getParameters().get("password"));
         m.put("manageport", env.getProperty("ML_PORT"));
         //Use the instance credentials
         //m.put("username", env.getProperty("ML_USER"));
         //m.put("password", env.getProperty("ML_PW"));
-        m.put("database", binding.getParameters().get("database"));
+        m.put("database", instance.getParameters().get("database"));
 
         String uri = "marklogic://" + m.get("username") + ":" + m.get("password") + "@" + m.get("host") + ":" + m.get("port") + "/" + m.get("database");
 
