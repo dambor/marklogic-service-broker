@@ -9,9 +9,9 @@ NOTE: The MarkLogic Manage App Server (Port 8002) must be set to basic authentic
   ```bash
   cf create-service p-mysql 100mb MLCreds
   ```
-2. Edit the [manifest.yml](https://github.com/djdman2000/marklogic-service-broker/blob/master/manifest.yml) file as needed for your MarkLogic environment. Specifically, lines 11-17 where 16-17 are the ports the service broker may use for MarkLogic services provisioned by the broker.
-3. The broker makes use of spring-security to protect itself against unauthorized meddling. To set its password edit line 1 of the [application.properties file](https://github.com/djdman2000/marklogic-service-broker/blob/master/src/main/resources/application.properties) (you probably don't want to check this in!)
-4. Ensure MarkLogic is running locally. Update the [application.properties](https://github.com/djdman2000/marklogic-service-broker/blob/master/src/test/resources/application.properties) such that it points to your local MarkLogic install.
+2. Edit the [manifest.yml](https://github.com/thomaswmcgrath/marklogic-service-broker/blob/master/manifest.yml) file as needed for your MarkLogic environment. Specifically, lines 11-17 where 16-17 are the ports the service broker may use for MarkLogic services provisioned by the broker.
+3. The broker makes use of spring-security to protect itself against unauthorized meddling. To set its password edit line 1 of the [application.properties file](https://github.com/thomaswmcgrath/marklogic-service-broker/blob/master/src/main/resources/application.properties) (you probably don't want to check this in!)
+4. Ensure MarkLogic is running locally. Update the [application.properties](https://github.com/thomaswmcgrath/marklogic-service-broker/blob/master/src/test/resources/application.properties) such that it points to your local MarkLogic install.
 5. Build the broker:
 
   ```bash
