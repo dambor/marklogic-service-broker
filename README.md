@@ -1,8 +1,10 @@
 # marklogic-service-broker
 The beginning of a MarkLogic Cloud Foundry Service Broker that provisions MarkLogic running elsewhere.
 
+NOTE: The MarkLogic Manage App Server (Port 8002) must be set to basic authentication for now. The [MarkLogic Documentation](https://docs.marklogic.com/guide/admin/http#id_67435) will direct you to where Application Server authentication is configured in MarkLogic.
+
 ##Using marklogic-service-broker
-1. The sample-broker requires a mysql datastore for now to manage the ML service credentials. To set this up:
+1. The sample-broker requires a mysql datastore for now to manage the ML service credentials.
 
   ```bash
   cf create-service p-mysql 100mb MLCreds
