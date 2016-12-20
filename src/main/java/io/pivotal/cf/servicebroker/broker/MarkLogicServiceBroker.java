@@ -56,6 +56,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         String contentDBExt = "-content";
         String modulesDBExt = "-modules";
         String forestHostNumber = "001";
+        //number of forests to create per host
         String forestNumber = "1";
 
         //Create content DB
@@ -107,9 +108,8 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         instance.getParameters().put("modulesForest", forestCreate);
 
         //Following lines moved from Create Binding
-        //ml create app server, role, and user
 
-        //TODO decide if Gson is really required for roles...
+        //ml create sets of users and roles, app server, role
 
         //create guest role
         Map<String, Object> guestSecRole = new HashMap<>();
@@ -302,7 +302,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
         markLogicManageAPI.deleteUser(guestUserDelete);
 
         //delete Guest Role
-        String guestRoleDelete = instance.getId() + "-guest-role";
+        String guestRoleDelete = instance.getId() + "-role";
         markLogicManageAPI.deleteRole(guestRoleDelete);
 
         //delete App Server
@@ -339,7 +339,9 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
      */
     @Override
     public void updateInstance(ServiceInstance instance) throws ServiceBrokerException {
+
         //TODO add more forests, nodes, indexes.....
+
     }
 
     /**
@@ -359,7 +361,7 @@ public class MarkLogicServiceBroker extends DefaultServiceImpl {
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) throws ServiceBrokerException {
 
-        //TODO: individual credentials for the different apps or anything else on a per app basis.
+        //TODO: create individual credentials for the different apps or anything else on a per app basis.
 
     }
 
