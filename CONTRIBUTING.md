@@ -48,7 +48,7 @@ your copy.
 
 ```sh
 $ git clone git@github.com:username/marklogic-service-broker.git
-$ cd roxy
+$ cd marklogic-service-broker
 $ git remote add upstream git://github.com/thomaswmcgrath/marklogic-service-broker.git
 ```
 
@@ -127,10 +127,6 @@ It would be really nice to improve marklogic-service-broker's testing. If you ad
 in Java code then please write unit tests in the src/test directory.
 When finished, verify that the self-test works. If the self-test passes, please also test with a 
 PCF environment and corresponding MarkLogic environment.
-
-```sh
-$ ./ml self-test
-```
 
 Make sure that all tests pass. Please, do not submit patches that fail.
 
