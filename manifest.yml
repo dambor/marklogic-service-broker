@@ -3,7 +3,7 @@ applications:
 - name: marklogic-service-broker-app
   memory: 512M
   instances: 1
-  buildpack: java_buildpack_offline
+  buildpack: java_buildpack
   path: target/marklogic-cf-service-broker-0.0.1.jar
   services: [ MLCreds ]
   env:
