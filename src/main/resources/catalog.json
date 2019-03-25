@@ -10,7 +10,7 @@
       ],
       "metadata":{
         "displayName":"MarkLogicDB",
-        "imageUrl":"http://www.marklogic.com/wp-content/themes/marklogic-v2/img/marklogic.png",
+        "imageUrl":"https://upload.wikimedia.org/wikipedia/commons/d/d2/Marklogic-logo.PNG",
         "longDescription":"A simple MarkLogic service broker implementation",
         "providerDisplayName":"MarkLogic"
       },

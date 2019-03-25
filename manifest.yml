@@ -1,17 +1,17 @@
 ---
 applications:
 - name: marklogic-service-broker-app
-  memory: 512M
+  memory: 1G
   instances: 1
   buildpack: java_buildpack
   path: target/marklogic-cf-service-broker-0.0.1.jar
   services: [ MLCreds ]
   env:
     SPRING_PROFILES_ACTIVE: cloud
-    ML_HOST: somehost.com
-    ML_CLUSTER_NAME: somehost.com
+    ML_HOST: localhost
+    ML_CLUSTER_NAME: localhost
     ML_PORT: 8002
-    ML_USER: tom
-    ML_PW: welcome1
-    ML_APPSERVER_START_PORT: start_host_port
-    ML_APPSERVER_END_PORT: end_host_port
+    ML_USER: admin
+    ML_PW: password
+    ML_APPSERVER_START_PORT: 8002
+    ML_APPSERVER_END_PORT: 8002

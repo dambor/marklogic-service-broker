@@ -3,10 +3,12 @@ package io.pivotal.cf.servicebroker.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
+import org.springframework.cloud.servicebroker.model.BrokerApiVersion;
 import org.springframework.cloud.servicebroker.model.Catalog;
 import org.springframework.cloud.servicebroker.model.ServiceDefinition;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,6 +20,11 @@ import java.nio.file.Paths;
 public class CatalogService implements org.springframework.cloud.servicebroker.service.CatalogService {
 
     private Catalog catalog;
+
+    @Bean
+    public BrokerApiVersion brokerApiVersion() {
+        return new BrokerApiVersion();
+    }
 
     @Override
     public Catalog getCatalog() {

@@ -61,7 +61,7 @@ public class ServiceBinding implements Serializable {
         this.serviceId = request.getServiceDefinitionId();
         this.planId = request.getPlanId();
         this.appGuid = request.getBoundAppGuid();
-        this.bindResource = request.getBindResource();
+        this.bindResource = (Map<String, Object>) request.getBindResource();
         if (request.getParameters() != null) {
             getParameters().putAll(request.getParameters());
         }

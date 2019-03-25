@@ -1,6 +1,8 @@
 # marklogic-service-broker
 The beginning of a MarkLogic Cloud Foundry Service Broker that provisions MarkLogic running elsewhere.
 
+For localhost purposes you may build a docker image for that: https://github.com/dambor/docker-ml
+
 NOTE: The MarkLogic Manage App Server (Port 8002) must be set to basic authentication for now. The [MarkLogic Documentation](https://docs.marklogic.com/guide/admin/http#id_67435) describes where Application Server authentication is configured in MarkLogic.
 
 ##Using marklogic-service-broker
